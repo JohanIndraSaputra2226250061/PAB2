@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "462204121529",
+    "project_id": "final-project-8f199",
+    "storage_bucket": "final-project-8f199.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:462204121529:android:461306e78f7771bbe54668",
+        "android_client_info": {
+          "package_name": "com.example.rupa_nusa"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdkZ5egpnW4iyaLTQmAzgx5IQOWCGlXA0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
