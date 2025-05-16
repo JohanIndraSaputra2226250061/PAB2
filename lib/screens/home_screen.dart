@@ -9,11 +9,30 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('RupaNusa')),
+      appBar: AppBar(
+        title: const Text('RupaNusa'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () => Navigator.pushNamed(context, '/search'),
+          ),
+        ],
+      ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('cultures').snapshots(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(child: Text('Terjadi kesalahan: ${snapshot.error}'));
+          }
+
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(child: Text('Belum ada data budaya yang tersedia.'));
+          }
+
           final cultures = snapshot.data!.docs.map((doc) => Culture.fromFirestore(doc)).toList();
           return GridView.builder(
             padding: const EdgeInsets.all(8.0),
@@ -44,17 +63,6 @@ class HomeScreen extends StatelessWidget {
           );
         },
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Favorit'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
-        ],
-        onTap: (index) {
-          if (index == 1) Navigator.pushNamed(context, '/favorites');
-          if (index == 2) Navigator.pushNamed(context, '/profile');
-        },
-      ),
     );
   }
-}
+} 

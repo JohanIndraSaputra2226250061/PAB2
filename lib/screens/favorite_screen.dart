@@ -12,7 +12,6 @@ class FavoritesScreen extends StatelessWidget {
     final user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Favorit')),
       body: user == null
           ? const Center(child: Text('Silakan masuk untuk melihat favorit'))
           : StreamBuilder<QuerySnapshot>(

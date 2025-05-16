@@ -1,24 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AppUser {
-  final String uid;
   final String email;
-  String username;
-  String phone;
+  final String username;
+  final String phone;
 
   AppUser({
-    required this.uid,
     required this.email,
-    this.username = '',
-    this.phone = '',
+    required this.username,
+    required this.phone,
   });
 
   factory AppUser.fromFirestore(DocumentSnapshot doc) {
-    Map data = doc.data() as Map;
+    final data = doc.data() as Map<String, dynamic>;
     return AppUser(
-      uid: doc.id,
       email: data['email'] ?? '',
-      username: data['username'] ?? '',
+      username: data['username'] ?? 'Pengguna',
       phone: data['phone'] ?? '',
     );
   }
