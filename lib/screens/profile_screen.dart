@@ -141,13 +141,41 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 10),
+                  
+                  // Logout button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        await FirebaseAuth.instance.signOut();
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          '/',
+                          (Route<dynamic> route) => false,
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red, // Warna merah untuk tombol logout
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text(
+                        'Logout',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
           );
         },
       ),
-      // Navbar telah dihilangkan
     );
   }
 }

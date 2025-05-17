@@ -4,11 +4,26 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'signup_screen.dart';
 
-class LandingScreen extends StatelessWidget {
+class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
+
+  @override
+  State<LandingScreen> createState() => _LandingScreenState();
+}
+
+class _LandingScreenState extends State<LandingScreen> {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  String? errorMessage;
+  bool isLoading = false;
 
   Future<void> _signInWithGoogle(BuildContext context) async {
     try {
+      setState(() {
+        isLoading = true;
+        errorMessage = null;
+      });
+      
       print('Mulai proses login dengan Google...');
       final GoogleSignIn googleSignIn = GoogleSignIn(
         clientId: 'YOUR_WEB_CLIENT_ID_HERE', // Ganti dengan Web Client ID dari Firebase
@@ -16,6 +31,9 @@ class LandingScreen extends StatelessWidget {
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
       if (googleUser == null) {
         print('Pengguna membatalkan login Google.');
+        setState(() {
+          isLoading = false;
+        });
         return;
       }
 
@@ -40,12 +58,30 @@ class LandingScreen extends StatelessWidget {
       }
     } catch (e) {
       print('Error saat login dengan Google: $e');
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal Login Google: $e')));
+      setState(() {
+        errorMessage = 'Gagal Login Google: ${_getReadableErrorMessage(e)}';
+      });
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
   Future<void> _signInWithEmail(BuildContext context, String email, String password) async {
+    if (email.isEmpty || password.isEmpty) {
+      setState(() {
+        errorMessage = 'Email dan password harus diisi';
+      });
+      return;
+    }
+    
     try {
+      setState(() {
+        isLoading = true;
+        errorMessage = null;
+      });
+      
       print('Mulai proses login dengan email...');
       print('Email: $email');
       UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -64,21 +100,44 @@ class LandingScreen extends StatelessWidget {
       }
     } catch (e) {
       print('Error saat login dengan email: $e');
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal Login: $e')));
+      setState(() {
+        errorMessage = _getReadableErrorMessage(e);
+      });
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
+  String _getReadableErrorMessage(dynamic error) {
+    if (error is FirebaseAuthException) {
+      switch (error.code) {
+        case 'user-not-found':
+          return 'Email tidak terdaftar';
+        case 'wrong-password':
+          return 'Password salah';
+        case 'invalid-email':
+          return 'Format email tidak valid';
+        case 'user-disabled':
+          return 'Akun telah dinonaktifkan';
+        case 'too-many-requests':
+          return 'Terlalu banyak percobaan login, coba lagi nanti';
+        default:
+          return 'Gagal login: ${error.message}';
+      }
+    }
+    return error.toString();
+  }
+
   Future<void> _signInWithApple(BuildContext context) async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Login dengan Apple belum diimplementasikan')),
-    );
+    setState(() {
+      errorMessage = 'Login dengan Apple belum diimplementasikan';
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final emailController = TextEditingController();
-    final passwordController = TextEditingController();
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -154,13 +213,26 @@ class LandingScreen extends StatelessWidget {
                   ),
                   obscureText: true,
                 ),
+                if (errorMessage != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    errorMessage!,
+                    style: const TextStyle(
+                      color: Colors.red,
+                      fontSize: 14,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
                 const SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: () => _signInWithEmail(
-                    context,
-                    emailController.text,
-                    passwordController.text,
-                  ),
+                  onPressed: isLoading
+                      ? null
+                      : () => _signInWithEmail(
+                            context,
+                            emailController.text,
+                            passwordController.text,
+                          ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
                     foregroundColor: Colors.white,
@@ -169,14 +241,24 @@ class LandingScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     elevation: 0,
+                    disabledBackgroundColor: Colors.grey,
                   ),
-                  child: const Text(
-                    'Log in',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  child: isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text(
+                          'Log in',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
                 const SizedBox(height: 16),
                 const Row(
@@ -194,7 +276,7 @@ class LandingScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 OutlinedButton.icon(
-                  onPressed: () => _signInWithGoogle(context),
+                  onPressed: isLoading ? null : () => _signInWithGoogle(context),
                   icon: SizedBox(
                     width: 20,
                     height: 20,
@@ -221,7 +303,7 @@ class LandingScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 OutlinedButton.icon(
-                  onPressed: () => _signInWithApple(context),
+                  onPressed: isLoading ? null : () => _signInWithApple(context),
                   icon: const Icon(
                     Icons.apple,
                     color: Colors.black,
