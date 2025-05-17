@@ -9,7 +9,8 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -26,10 +27,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   Widget _buildCultureGrid(String category) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('cultures')
-          .where('category', isEqualTo: category)
-          .snapshots(),
+      stream:
+          FirebaseFirestore.instance
+              .collection('cultures')
+              .where('category', isEqualTo: category)
+              .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -40,10 +42,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         }
 
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return const Center(child: Text('Belum ada data untuk kategori ini.'));
+          return const Center(
+            child: Text('Belum ada data untuk kategori ini.'),
+          );
         }
 
-        final cultures = snapshot.data!.docs.map((doc) => Culture.fromFirestore(doc)).toList();
+        final cultures =
+            snapshot.data!.docs
+                .map((doc) => Culture.fromFirestore(doc))
+                .toList();
 
         return GridView.builder(
           padding: const EdgeInsets.all(16.0),
@@ -57,11 +64,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           itemBuilder: (context, index) {
             final culture = cultures[index];
             return GestureDetector(
-              onTap: () => Navigator.pushNamed(
-                context,
-                '/detail',
-                arguments: culture,
-              ),
+              onTap:
+                  () => Navigator.pushNamed(
+                    context,
+                    '/detail',
+                    arguments: culture,
+                  ),
               child: Card(
                 elevation: 4,
                 shape: RoundedRectangleBorder(
@@ -71,17 +79,24 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ClipRRect(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(12),
+                      ),
                       child: Image.network(
                         culture.imageUrl,
                         height: 120,
                         width: double.infinity,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          height: 120,
-                          color: Colors.grey.shade300,
-                          child: const Icon(Icons.broken_image, size: 50, color: Colors.grey),
-                        ),
+                        errorBuilder:
+                            (context, error, stackTrace) => Container(
+                              height: 120,
+                              color: Colors.grey.shade300,
+                              child: const Icon(
+                                Icons.broken_image,
+                                size: 50,
+                                color: Colors.grey,
+                              ),
+                            ),
                       ),
                     ),
                     Padding(
@@ -143,6 +158,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     return Scaffold(
       appBar: AppBar(
         title: const Text('RupaNusa'),
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.search),

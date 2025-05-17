@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'signup_screen.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -23,7 +21,7 @@ class _LandingScreenState extends State<LandingScreen> {
         isLoading = true;
         errorMessage = null;
       });
-      
+
       print('Mulai proses login dengan Google...');
       final GoogleSignIn googleSignIn = GoogleSignIn(
         clientId: 'YOUR_WEB_CLIENT_ID_HERE', // Ganti dengan Web Client ID dari Firebase
@@ -47,13 +45,7 @@ class _LandingScreenState extends State<LandingScreen> {
       print('Mengautentikasi dengan Firebase...');
       UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
       if (userCredential.user != null) {
-        print('Autentikasi berhasil, menyimpan data pengguna ke Firestore...');
-        await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
-          'email': userCredential.user!.email,
-          'username': userCredential.user!.displayName,
-          'phone': '',
-        }, SetOptions(merge: true));
-        print('Navigasi ke halaman utama...');
+        print('Autentikasi berhasil, navigasi ke halaman utama...');
         Navigator.pushReplacementNamed(context, '/main');
       }
     } catch (e) {
@@ -75,27 +67,21 @@ class _LandingScreenState extends State<LandingScreen> {
       });
       return;
     }
-    
+
     try {
       setState(() {
         isLoading = true;
         errorMessage = null;
       });
-      
+
       print('Mulai proses login dengan email...');
       print('Email: $email');
       UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
+        email: email.trim(),
         password: password,
       );
       if (userCredential.user != null) {
-        print('Autentikasi berhasil, menyimpan data pengguna ke Firestore...');
-        await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
-          'email': email,
-          'username': userCredential.user!.displayName ?? 'Pengguna',
-          'phone': '',
-        }, SetOptions(merge: true));
-        print('Navigasi ke halaman utama...');
+        print('Autentikasi berhasil, navigasi ke halaman utama...');
         Navigator.pushReplacementNamed(context, '/main');
       }
     } catch (e) {
@@ -124,7 +110,7 @@ class _LandingScreenState extends State<LandingScreen> {
         case 'too-many-requests':
           return 'Terlalu banyak percobaan login, coba lagi nanti';
         default:
-          return 'Gagal login: ${error.message}';
+          return 'Gagal login: ${error.message ?? "Kesalahan tidak diketahui"}';
       }
     }
     return error.toString();
@@ -158,15 +144,6 @@ class _LandingScreenState extends State<LandingScreen> {
                   ),
                 ),
                 const SizedBox(height: 40),
-                const Text(
-                  'Create an account',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
                 const Text(
                   'Enter your email to sign up for this app',
                   style: TextStyle(
@@ -261,6 +238,32 @@ class _LandingScreenState extends State<LandingScreen> {
                         ),
                 ),
                 const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "Don't have account? ",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.black54,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamed(context, '/signup');
+                      },
+                      child: const Text(
+                        "Register Now!",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
                 const Row(
                   children: [
                     Expanded(child: Divider()),
@@ -334,18 +337,6 @@ class _LandingScreenState extends State<LandingScreen> {
                       color: Colors.black54,
                     ),
                     textAlign: TextAlign.center,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Container(
-                  alignment: Alignment.center,
-                  child: Container(
-                    width: 60,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
