@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rupa_nusa/models/culture.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,6 +15,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   bool _showAppBarTitle = false;
+  int _currentCarouselIndex = 0;
 
   @override
   void initState() {
@@ -41,6 +43,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHeader() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       decoration: BoxDecoration(
@@ -117,6 +121,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildCategorySection() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     final List<Map<String, dynamic>> categories = [
       {'name': 'Tarian', 'icon': Icons.music_note, 'color': Colors.red[400]},
       {'name': 'Rumah Adat', 'icon': Icons.home, 'color': Colors.brown[400]},
@@ -137,11 +143,12 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Kategori',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
+                    color: isDarkMode ? Colors.white : Colors.black,
                   ),
                 ),
                 GestureDetector(
@@ -219,9 +226,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         const SizedBox(height: 8),
                         Text(
                           categories[index]['name'],
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
+                            color: isDarkMode ? Colors.white : Colors.black,
                           ),
                         ),
                       ],
@@ -241,6 +249,8 @@ class _HomeScreenState extends State<HomeScreen> {
     required String category,
     required Color accentColor,
   }) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       child: Column(
@@ -253,9 +263,10 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
+                    color: isDarkMode ? Colors.white : Colors.black,
                   ),
                 ),
                 GestureDetector(
@@ -332,7 +343,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         width: 160,
                         margin: const EdgeInsets.symmetric(horizontal: 8),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: isDarkMode ? Colors.grey[850] : Colors.white,
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
@@ -407,9 +418,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 children: [
                                   Text(
                                     culture.title,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
+                                      color: isDarkMode ? Colors.white : Colors.black,
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -454,6 +466,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildLoadingItems() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       scrollDirection: Axis.horizontal,
@@ -463,12 +477,12 @@ class _HomeScreenState extends State<HomeScreen> {
           width: 160,
           margin: const EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: isDarkMode ? Colors.grey[850] : Colors.white,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Shimmer.fromColors(
-            baseColor: Colors.grey[300]!,
-            highlightColor: Colors.grey[100]!,
+            baseColor: isDarkMode ? Colors.grey[700]! : Colors.grey[300]!,
+            highlightColor: isDarkMode ? Colors.grey[600]! : Colors.grey[100]!,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -511,6 +525,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildErrorWidget() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -523,11 +539,11 @@ class _HomeScreenState extends State<HomeScreen> {
               color: Colors.red[300],
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Terjadi kesalahan saat memuat data',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.grey,
+                color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
               ),
             ),
           ],
@@ -537,6 +553,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildEmptyWidget(String category) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -546,14 +564,14 @@ class _HomeScreenState extends State<HomeScreen> {
             Icon(
               Icons.inbox,
               size: 40,
-              color: Colors.grey[400],
+              color: isDarkMode ? Colors.grey[600] : Colors.grey[400],
             ),
             const SizedBox(height: 8),
             Text(
               'Belum ada data $category',
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.grey,
+              style: TextStyle(
+                color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
               ),
             ),
           ],
@@ -563,167 +581,266 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildFeaturedSection() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Budaya Pilihan',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Budaya Pilihan',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: isDarkMode ? Colors.white : Colors.black,
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  // Navigasi ke halaman semua budaya pilihan
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Row(
+                    children: [
+                      Text(
+                        'Lihat Semua',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange,
+                        ),
+                      ),
+                      SizedBox(width: 4),
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        size: 10,
+                        color: Colors.orange,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 16),
           StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('cultures')
                 .orderBy('likeCount', descending: true)
-                .limit(1)
+                .limit(5)
                 .snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
+            builder: (context, featuredSnapshot) {  // Updated variable name here
+              if (featuredSnapshot.connectionState == ConnectionState.waiting) {
                 return _buildFeaturedLoadingItem();
               }
-              if (snapshot.hasError || !snapshot.hasData || snapshot.data!.docs.isEmpty) {
+              if (featuredSnapshot.hasError || !featuredSnapshot.hasData || featuredSnapshot.data!.docs.isEmpty) {
                 return Container();
               }
-              final culture = Culture.fromFirestore(snapshot.data!.docs.first);
-              return GestureDetector(
-                onTap: () {
-                  Navigator.pushNamed(
-                    context,
-                    '/detail',
-                    arguments: culture,
-                  );
-                },
-                child: Container(
-                  width: double.infinity,
+              
+              final cultures = featuredSnapshot.data!.docs.map((doc) => Culture.fromFirestore(doc)).toList();
+              
+              return CarouselSlider(
+                options: CarouselOptions(
                   height: 200,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: Stack(
-                    children: [
-                      // Image
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: Image.network(
-                          culture.imageUrl,
-                          width: double.infinity,
-                          height: 200,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Container(
-                            width: double.infinity,
-                            height: 200,
-                            color: Colors.grey.shade300,
-                            child: const Icon(
-                              Icons.broken_image,
-                              size: 50,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ),
-                      ),
-                      // Gradient overlay
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.transparent,
-                              Colors.black.withOpacity(0.7),
-                            ],
-                            stops: const [0.5, 1.0],
-                          ),
-                        ),
-                      ),
-                      // Content
-                      Positioned(
-                        bottom: 16,
-                        left: 16,
-                        right: 16,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                              decoration: BoxDecoration(
-                                color: Colors.orange,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                culture.category,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              culture.title,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.location_on,
-                                  size: 14,
-                                  color: Colors.white70,
-                                ),
-                                const SizedBox(width: 4),
-                                Expanded(
-                                  child: Text(
-                                    culture.location,
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.white70,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                const Icon(
-                                  Icons.favorite,
-                                  size: 14,
-                                  color: Colors.red,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '${culture.likeCount}',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                  viewportFraction: 1.0,
+                  enlargeCenterPage: false,
+                  autoPlay: true,
+                  autoPlayInterval: const Duration(seconds: 5),
+                  autoPlayAnimationDuration: const Duration(milliseconds: 800),
+                  autoPlayCurve: Curves.fastOutSlowIn,
+                  enableInfiniteScroll: cultures.length > 1,
+                  onPageChanged: (index, reason) {
+                    setState(() {
+                      _currentCarouselIndex = index;
+                    });
+                  },
                 ),
+                items: cultures.map((culture) {
+                  return Builder(
+                    builder: (BuildContext context) {
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            '/detail',
+                            arguments: culture,
+                          );
+                        },
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          margin: const EdgeInsets.symmetric(horizontal: 0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 10,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          child: Stack(
+                            children: [
+                              // Image
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(16),
+                                child: Image.network(
+                                  culture.imageUrl,
+                                  width: double.infinity,
+                                  height: 200,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) => Container(
+                                    width: double.infinity,
+                                    height: 200,
+                                    color: Colors.grey.shade300,
+                                    child: const Icon(
+                                      Icons.broken_image,
+                                      size: 50,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              // Gradient overlay
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16),
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Colors.transparent,
+                                      Colors.black.withOpacity(0.7),
+                                    ],
+                                    stops: const [0.5, 1.0],
+                                  ),
+                                ),
+                              ),
+                              // Content
+                              Positioned(
+                                bottom: 16,
+                                left: 16,
+                                right: 16,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                      decoration: BoxDecoration(
+                                        color: Colors.orange,
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Text(
+                                        culture.category,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      culture.title,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.location_on,
+                                          size: 14,
+                                          color: Colors.white70,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Expanded(
+                                          child: Text(
+                                            culture.location,
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.white70,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        const Icon(
+                                          Icons.favorite,
+                                          size: 14,
+                                          color: Colors.red,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          '${culture.likeCount}',
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                }).toList(),
               );
+            },
+          ),
+          // Indicator dots
+          StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+              .collection('cultures')
+              .orderBy('likeCount', descending: true)
+              .limit(5)
+              .snapshots(),
+            builder: (context, indicatorSnapshot) {  // Updated variable name here
+              if (indicatorSnapshot.connectionState != ConnectionState.waiting && 
+                  indicatorSnapshot.hasData && 
+                  indicatorSnapshot.data!.docs.isNotEmpty) {
+                return Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                      indicatorSnapshot.data!.docs.length > 5 ? 5 : indicatorSnapshot.data!.docs.length,
+                      (index) => Container(
+                        width: 8,
+                        height: 8,
+                        margin: const EdgeInsets.symmetric(horizontal: 2),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: _currentCarouselIndex == index
+                              ? Colors.orange
+                              : (isDarkMode ? Colors.grey[600] : Colors.grey[300]),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              } else {
+                return Container();  // Return empty container if conditions are not met
+              }
             },
           ),
         ],
@@ -732,9 +849,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildFeaturedLoadingItem() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
+      baseColor: isDarkMode ? Colors.grey[700]! : Colors.grey[300]!,
+      highlightColor: isDarkMode ? Colors.grey[600]! : Colors.grey[100]!,
       child: Container(
         width: double.infinity,
         height: 200,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rupa_nusa/models/culture.dart';
 import 'detail_screen.dart';
 
@@ -13,12 +12,14 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final _searchController = TextEditingController();
+  List<String> searchHistory = ['Gending Sriwijaya', 'Rumah Honai'];
 
   @override
   void initState() {
     super.initState();
+    // Tambahkan listener untuk memperbarui UI saat teks berubah
     _searchController.addListener(() {
-      setState(() {});
+      setState(() {}); // Perbarui UI saat teks berubah
     });
   }
 
@@ -28,54 +29,45 @@ class _SearchScreenState extends State<SearchScreen> {
     super.dispose();
   }
 
-  Future<void> _addSearchQuery(String query) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null || query.isEmpty) return;
-
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .collection('searchHistory')
-        .add({
-      'query': query,
-      'timestamp': FieldValue.serverTimestamp(),
+  void _removeSearchItem(String item) {
+    setState(() {
+      searchHistory.remove(item);
     });
-  }
-
-  Future<void> _removeSearchItem(String docId) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .collection('searchHistory')
-        .doc(docId)
-        .delete();
   }
 
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final user = FirebaseAuth.instance.currentUser;
-
+    
     return Scaffold(
       backgroundColor: isDarkMode ? Colors.grey[900] : Colors.white,
+      // Menghapus AppBar dan memindahkan kontennya ke body
       body: SafeArea(
         child: Column(
           children: [
-            // Search Bar with Back Button
+            // Search Bar dengan Back Button di samping
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding: const EdgeInsets.all(16.0),
               child: Row(
                 children: [
-                  IconButton(
-                    icon: Icon(
-                      Icons.arrow_back,
-                      color: isDarkMode ? Colors.white : Colors.black,
+                  // Back Button
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: isDarkMode ? Colors.grey[800] : Colors.grey[100],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.arrow_back,
+                        color: isDarkMode ? Colors.white : Colors.black,
+                        size: 20,
+                      ),
                     ),
-                    onPressed: () => Navigator.of(context).pop(),
                   ),
+                  const SizedBox(width: 12),
+                  // Search Bar
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
@@ -105,7 +97,11 @@ class _SearchScreenState extends State<SearchScreen> {
                         autofocus: true,
                         onSubmitted: (value) {
                           if (value.isNotEmpty) {
-                            _addSearchQuery(value);
+                            setState(() {
+                              if (!searchHistory.contains(value)) {
+                                searchHistory.add(value);
+                              }
+                            });
                           }
                         },
                       ),
@@ -114,83 +110,52 @@ class _SearchScreenState extends State<SearchScreen> {
                 ],
               ),
             ),
-
+            
             // Search History
-            if (user != null)
-              StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('users')
-                    .doc(user.uid)
-                    .collection('searchHistory')
-                    .orderBy('timestamp', descending: true)
-                    .limit(10)
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const SizedBox.shrink();
-                  }
-                  if (snapshot.hasError) {
-                    return const SizedBox.shrink();
-                  }
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return const SizedBox.shrink();
-                  }
-
-                  final searchHistory = snapshot.data!.docs;
-
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: searchHistory.map((doc) {
-                        final data = doc.data() as Map<String, dynamic>;
-                        final query = data['query'] as String? ?? '';
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4.0),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.history,
-                                size: 16,
-                                color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    _searchController.text = query;
-                                    setState(() {});
-                                  },
-                                  child: Text(
-                                    query,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: isDarkMode ? Colors.white : Colors.black87,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () => _removeSearchItem(doc.id),
-                                child: Icon(
-                                  Icons.close,
-                                  size: 16,
-                                  color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
-                                ),
-                              ),
-                            ],
+            if (searchHistory.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: searchHistory.map((query) => 
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.history,
+                            size: 16,
+                            color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                           ),
-                        );
-                      }).toList(),
-                    ),
-                  );
-                },
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              query,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: isDarkMode ? Colors.white : Colors.black87,
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () => _removeSearchItem(query),
+                            child: Icon(
+                              Icons.close,
+                              size: 16,
+                              color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  ).toList(),
+                ),
               ),
-
+            
             // Search Results
             Expanded(
               child: _searchController.text.isEmpty
-                  ? Container()
+                  ? Container() // Jika search kosong, tampilkan container kosong
                   : StreamBuilder<QuerySnapshot>(
                       stream: FirebaseFirestore.instance.collection('cultures').snapshots(),
                       builder: (context, snapshot) {
@@ -220,9 +185,8 @@ class _SearchScreenState extends State<SearchScreen> {
 
                         final cultures = snapshot.data!.docs
                             .map((doc) => Culture.fromFirestore(doc))
-                            .where((culture) => culture.title
-                                .toLowerCase()
-                                .contains(_searchController.text.toLowerCase()))
+                            .where((culture) =>
+                                culture.title.toLowerCase().contains(_searchController.text.toLowerCase()))
                             .toList();
 
                         if (cultures.isEmpty) {
@@ -260,8 +224,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                           width: 60,
                                           height: 60,
                                           fit: BoxFit.cover,
-                                          errorBuilder: (context, error, stackTrace) =>
-                                              Container(
+                                          errorBuilder: (context, error, stackTrace) => Container(
                                             width: 60,
                                             height: 60,
                                             color: Colors.grey.shade300,
