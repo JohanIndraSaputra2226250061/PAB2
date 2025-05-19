@@ -91,17 +91,136 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
       body: _screens[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Favorit'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.orange,
-        onTap: _onItemTapped,
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: isDarkMode ? Colors.grey[850] : Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, -5),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: BottomNavigationBar(
+                items: [
+                  BottomNavigationBarItem(
+                    icon: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: _selectedIndex == 0 
+                            ? Colors.orange.withOpacity(0.2) 
+                            : Colors.transparent,
+                      ),
+                      child: Icon(
+                        Icons.home_outlined,
+                        color: _selectedIndex == 0 
+                            ? Colors.orange 
+                            : isDarkMode ? Colors.grey : Colors.grey.shade600,
+                      ),
+                    ),
+                    activeIcon: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.orange.withOpacity(0.2),
+                      ),
+                      child: const Icon(
+                        Icons.home,
+                        color: Colors.orange,
+                      ),
+                    ),
+                    label: 'Beranda',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: _selectedIndex == 1 
+                            ? Colors.orange.withOpacity(0.2) 
+                            : Colors.transparent,
+                      ),
+                      child: Icon(
+                        Icons.favorite_outline,
+                        color: _selectedIndex == 1 
+                            ? Colors.orange 
+                            : isDarkMode ? Colors.grey : Colors.grey.shade600,
+                      ),
+                    ),
+                    activeIcon: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.orange.withOpacity(0.2),
+                      ),
+                      child: const Icon(
+                        Icons.favorite,
+                        color: Colors.orange,
+                      ),
+                    ),
+                    label: 'Favorit',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: _selectedIndex == 2 
+                            ? Colors.orange.withOpacity(0.2) 
+                            : Colors.transparent,
+                      ),
+                      child: Icon(
+                        Icons.person_outline,
+                        color: _selectedIndex == 2 
+                            ? Colors.orange 
+                            : isDarkMode ? Colors.grey : Colors.grey.shade600,
+                      ),
+                    ),
+                    activeIcon: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.orange.withOpacity(0.2),
+                      ),
+                      child: const Icon(
+                        Icons.person,
+                        color: Colors.orange,
+                      ),
+                    ),
+                    label: 'Profil',
+                  ),
+                ],
+                currentIndex: _selectedIndex,
+                selectedItemColor: Colors.orange,
+                unselectedItemColor: isDarkMode ? Colors.grey : Colors.grey.shade600,
+                backgroundColor: isDarkMode ? Colors.grey[850] : Colors.white,
+                selectedLabelStyle: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12,
+                ),
+                unselectedLabelStyle: const TextStyle(
+                  fontWeight: FontWeight.normal,
+                  fontSize: 12,
+                ),
+                type: BottomNavigationBarType.fixed,
+                showUnselectedLabels: true,
+                elevation: 0,
+                onTap: _onItemTapped,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

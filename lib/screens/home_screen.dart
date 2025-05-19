@@ -18,8 +18,8 @@ class _HomeScreenState extends State<HomeScreen> {
       {'name': 'Rumah', 'icon': Icons.home, 'color': Colors.brown[400]},
       {'name': 'Suku', 'icon': Icons.people, 'color': Colors.purple[400]},
       {'name': 'Senjata', 'icon': Icons.gavel, 'color': Colors.grey[700]},
-      {'name': 'Makanan', 'icon': Icons.restaurant, 'color': Colors.orange[400]},
-      {'name': 'Baju Adat', 'icon': Icons.checkroom, 'color': Colors.blue[400]},
+      {'name': 'Makanan Daerah', 'icon': Icons.restaurant, 'color': Colors.orange[400]},
+      {'name': 'Pakaian Adat', 'icon': Icons.checkroom, 'color': Colors.blue[400]},
       {'name': 'Alat Musik', 'icon': Icons.music_note, 'color': Colors.green[400]},
     ];
 
