@@ -15,21 +15,38 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _emailController;
   late TextEditingController _phoneController;
   String? _errorMessage;
+  AppUser? _user;
 
   @override
   void initState() {
     super.initState();
-    // Ambil argumen dari navigasi
-    final user = ModalRoute.of(context)!.settings.arguments as AppUser?;
-    if (user != null) {
-      _usernameController = TextEditingController(text: user.username);
-      _emailController = TextEditingController(text: user.email);
-      _phoneController = TextEditingController(text: user.phone);
-    } else {
-      // Default jika argumen tidak ada
-      _usernameController = TextEditingController(text: '');
-      _emailController = TextEditingController(text: '');
-      _phoneController = TextEditingController(text: '');
+    // Inisialisasi controller tanpa mengambil argumen di sini
+    _usernameController = TextEditingController();
+    _emailController = TextEditingController();
+    _phoneController = TextEditingController();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Ambil argumen dari navigasi di sini
+    if (_user == null) {
+      final user = ModalRoute.of(context)?.settings.arguments as AppUser?;
+      if (user != null) {
+        setState(() {
+          _user = user;
+          _usernameController.text = user.username;
+          _emailController.text = user.email;
+          _phoneController.text = user.phone;
+        });
+      } else {
+        // Default jika argumen tidak ada
+        setState(() {
+          _usernameController.text = '';
+          _emailController.text = '';
+          _phoneController.text = '';
+        });
+      }
     }
   }
 
@@ -117,7 +134,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               const SizedBox(height: 20),
               Text(
                 _errorMessage!,
-                style: TextStyle(color: Colors.red),
+                style: const TextStyle(color: Colors.red),
               ),
             ],
             const SizedBox(height: 20),
