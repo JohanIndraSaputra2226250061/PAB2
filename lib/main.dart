@@ -9,7 +9,7 @@ import 'package:rupa_nusa/screens/setting_screen.dart';
 import 'package:rupa_nusa/screens/signup_screen.dart';
 import 'package:rupa_nusa/screens/edit_profile_screen.dart';
 import 'package:rupa_nusa/screens/splash_screen.dart';
-import 'package:url_strategy/url_strategy.dart'; // Tambahkan package
+import 'package:url_strategy/url_strategy.dart'; 
 import 'firebase_options.dart';
 import 'screens/landing_screen.dart';
 import 'screens/home_screen.dart';

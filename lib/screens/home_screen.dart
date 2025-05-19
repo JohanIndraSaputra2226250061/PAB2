@@ -855,7 +855,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            // Content
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
