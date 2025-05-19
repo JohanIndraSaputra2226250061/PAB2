@@ -22,40 +22,33 @@ class _LandingScreenState extends State<LandingScreen> {
         errorMessage = null;
       });
 
-      print('Mulai proses login dengan Google...');
       final GoogleSignIn googleSignIn = GoogleSignIn(
-        clientId: 'YOUR_WEB_CLIENT_ID_HERE', // Ganti dengan Web Client ID dari Firebase
+        clientId: '462204121529-hdqoh31a9a0u1hsdhvg3cfp5i874ekt3.apps.googleusercontent.com', // Ganti dengan Web Client ID dari Firebase
       );
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
       if (googleUser == null) {
-        print('Pengguna membatalkan login Google.');
         setState(() {
           isLoading = false;
+          errorMessage = 'Login dengan Google dibatalkan oleh pengguna';
         });
         return;
       }
 
-      print('Google Sign-In berhasil, mengambil kredensial...');
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      print('Mengautentikasi dengan Firebase...');
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+      final UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithCredential(credential);
       if (userCredential.user != null) {
-        print('Autentikasi berhasil, navigasi ke halaman utama...');
         Navigator.pushReplacementNamed(context, '/main');
       }
     } catch (e) {
-      print('Error saat login dengan Google: $e');
-      setState(() {
-        errorMessage = 'Gagal Login Google: ${_getReadableErrorMessage(e)}';
-      });
-    } finally {
       setState(() {
         isLoading = false;
+        errorMessage = 'Gagal Login Google: ${_getReadableErrorMessage(e)}';
       });
     }
   }
@@ -74,24 +67,18 @@ class _LandingScreenState extends State<LandingScreen> {
         errorMessage = null;
       });
 
-      print('Mulai proses login dengan email...');
-      print('Email: $email');
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email.trim(),
         password: password,
       );
       if (userCredential.user != null) {
-        print('Autentikasi berhasil, navigasi ke halaman utama...');
         Navigator.pushReplacementNamed(context, '/main');
       }
     } catch (e) {
-      print('Error saat login dengan email: $e');
-      setState(() {
-        errorMessage = _getReadableErrorMessage(e);
-      });
-    } finally {
       setState(() {
         isLoading = false;
+        errorMessage = _getReadableErrorMessage(e);
       });
     }
   }
@@ -284,7 +271,7 @@ class _LandingScreenState extends State<LandingScreen> {
                     width: 20,
                     height: 20,
                     child: Image.asset(
-                      'assets/google_logo.png',
+                      'assets/google_logo.png', // Pastikan aset ini ada di pubspec.yaml
                       fit: BoxFit.contain,
                     ),
                   ),
