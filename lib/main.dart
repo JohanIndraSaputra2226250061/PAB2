@@ -13,6 +13,7 @@ import 'package:url_strategy/url_strategy.dart'; // Tambahkan package
 import 'firebase_options.dart';
 import 'screens/landing_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/admin_posting_screen.dart'; 
 import 'screens/profile_screen.dart';
 import 'providers/theme_provider.dart';
 
@@ -64,6 +65,7 @@ class RupaNusaApp extends StatelessWidget {
             '/settings': (context) => const SettingsScreen(),
             '/home': (context) => const HomeScreen(),
             '/edit-profile': (context) => const EditProfileScreen(),
+            '/admin-posting': (context) => const AdminPostingScreen(),
           },
         );
       },
