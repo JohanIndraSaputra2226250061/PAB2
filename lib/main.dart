@@ -8,6 +8,7 @@ import 'package:rupa_nusa/screens/search_screen.dart';
 import 'package:rupa_nusa/screens/setting_screen.dart';
 import 'package:rupa_nusa/screens/signup_screen.dart';
 import 'package:rupa_nusa/screens/edit_profile_screen.dart';
+import 'package:rupa_nusa/screens/splash_screen.dart';
 import 'package:url_strategy/url_strategy.dart'; // Tambahkan package
 import 'firebase_options.dart';
 import 'screens/landing_screen.dart';
@@ -51,11 +52,12 @@ class RupaNusaApp extends StatelessWidget {
                   scaffoldBackgroundColor: Colors.white,
                   textTheme: const TextTheme(bodyLarge: TextStyle(color: Colors.black)),
                 ),
-          initialRoute: '/',
+          initialRoute: '/splash',
           routes: {
+            '/splash': (context) => const SplashScreen(),
+            '/signup': (context) => const SignUpScreen(),
             '/': (context) => const LandingScreen(),
             '/main': (context) => const MainScreen(),
-            '/signup': (context) => const SignUpScreen(),
             '/search': (context) => const SearchScreen(),
             '/category': (context) => const CategoryScreen(),
             '/detail': (context) => const DetailScreen(),
