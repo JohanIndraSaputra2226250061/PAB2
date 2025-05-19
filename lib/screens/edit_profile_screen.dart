@@ -4,9 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rupa_nusa/models/user.dart';
 
 class EditProfileScreen extends StatefulWidget {
-  final AppUser user;
-
-  const EditProfileScreen({super.key, required this.user});
+  const EditProfileScreen({super.key});
 
   @override
   _EditProfileScreenState createState() => _EditProfileScreenState();
@@ -21,9 +19,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _usernameController = TextEditingController(text: widget.user.username);
-    _emailController = TextEditingController(text: widget.user.email);
-    _phoneController = TextEditingController(text: widget.user.phone);
+    // Ambil argumen dari navigasi
+    final user = ModalRoute.of(context)!.settings.arguments as AppUser?;
+    if (user != null) {
+      _usernameController = TextEditingController(text: user.username);
+      _emailController = TextEditingController(text: user.email);
+      _phoneController = TextEditingController(text: user.phone);
+    } else {
+      // Default jika argumen tidak ada
+      _usernameController = TextEditingController(text: '');
+      _emailController = TextEditingController(text: '');
+      _phoneController = TextEditingController(text: '');
+    }
   }
 
   @override
