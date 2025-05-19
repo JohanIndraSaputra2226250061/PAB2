@@ -16,12 +16,10 @@ class CategoryScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Row(
                 children: [
-                  // Back Button
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
                     child: Container(
@@ -87,7 +85,7 @@ class CategoryScreen extends StatelessWidget {
                         color: isDarkMode ? Colors.white : Colors.black,
                       ),
                       onPressed: () {
-                        // Implementasi filter di sini
+                        
                       },
                     ),
                   ),
@@ -95,7 +93,6 @@ class CategoryScreen extends StatelessWidget {
               ),
             ),
             
-            // Content
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream: category == 'Semua'
