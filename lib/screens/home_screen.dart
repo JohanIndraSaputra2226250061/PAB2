@@ -15,7 +15,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildCategorySection() {
     final List<Map<String, dynamic>> categories = [
       {'name': 'Tarian', 'icon': Icons.music_note, 'color': Colors.red[400]},
-      {'name': 'Rumah', 'icon': Icons.home, 'color': Colors.brown[400]},
+      {'name': 'Rumah Adat', 'icon': Icons.home, 'color': Colors.brown[400]},
       {'name': 'Suku', 'icon': Icons.people, 'color': Colors.purple[400]},
       {'name': 'Senjata', 'icon': Icons.gavel, 'color': Colors.grey[700]},
       {'name': 'Makanan Daerah', 'icon': Icons.restaurant, 'color': Colors.orange[400]},
@@ -826,32 +826,31 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Search Bar
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Search',
-                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                    hintStyle: TextStyle(color: Colors.grey[600]),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, '/search');
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  onSubmitted: (value) {
-                    if (value.isNotEmpty) {
-                      Navigator.pushNamed(
-                        context,
-                        '/search',
-                        arguments: value,
-                      );
-                    }
-                  },
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.search, color: Colors.grey),
+                      SizedBox(width: 8),
+                      Text(
+                        'Search',
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
