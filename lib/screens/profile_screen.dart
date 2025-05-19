@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rupa_nusa/models/user.dart';
+import 'edit_profile_screen.dart'; // Impor halaman baru
+import 'setting_screen.dart'; // Pastikan diimpor
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -24,11 +26,11 @@ class ProfileScreen extends StatelessWidget {
           ),
         ),
         centerTitle: true,
-        automaticallyImplyLeading: false, // Menghilangkan tombol back
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.settings_outlined),
-            onPressed: () {},
+            onPressed: () => Navigator.pushNamed(context, '/settings'),
           ),
         ],
         elevation: 0,
@@ -56,7 +58,7 @@ class ProfileScreen extends StatelessWidget {
           }
 
           final appUser = AppUser.fromFirestore(snapshot.data!);
-          
+
           return SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -78,7 +80,7 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 30),
-                  
+
                   // User information fields
                   Container(
                     decoration: BoxDecoration(
@@ -93,7 +95,7 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  
+
                   Container(
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.grey.shade300),
@@ -107,7 +109,7 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  
+
                   Container(
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.grey.shade300),
@@ -121,12 +123,16 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  
+
                   // Edit button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () => Navigator.pushNamed(context, '/settings'),
+                      onPressed: () => Navigator.pushNamed(
+                        context,
+                        '/edit-profile',
+                        arguments: appUser,
+                      ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,
                         foregroundColor: Colors.white,
@@ -142,7 +148,7 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  
+
                   // Logout button
                   SizedBox(
                     width: double.infinity,
@@ -156,7 +162,7 @@ class ProfileScreen extends StatelessWidget {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red, // Warna merah untuk tombol logout
+                        backgroundColor: Colors.red,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 15),
                         shape: RoundedRectangleBorder(
