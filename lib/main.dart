@@ -8,6 +8,7 @@ import 'package:rupa_nusa/screens/search_screen.dart';
 import 'package:rupa_nusa/screens/setting_screen.dart';
 import 'package:rupa_nusa/screens/signup_screen.dart';
 import 'package:rupa_nusa/screens/edit_profile_screen.dart';
+import 'package:rupa_nusa/screens/change_password_screen.dart';
 import 'package:rupa_nusa/screens/splash_screen.dart';
 import 'package:url_strategy/url_strategy.dart'; 
 import 'firebase_options.dart';
@@ -66,6 +67,7 @@ class RupaNusaApp extends StatelessWidget {
             '/home': (context) => const HomeScreen(),
             '/edit-profile': (context) => const EditProfileScreen(),
             '/admin-posting': (context) => const AdminPostingScreen(),
+            '/change-password': (context) => const ChangePasswordScreen(),
           },
         );
       },

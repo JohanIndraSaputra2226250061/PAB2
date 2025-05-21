@@ -325,6 +325,26 @@ class ProfileScreen extends StatelessWidget {
                           ),
                         ),
                         
+                        // Change Password Button
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: () => Navigator.pushNamed(context, '/change-password'),
+                            icon: const Icon(Icons.lock),
+                            label: const Text('Ganti Password'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 15),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                            ),
+                          ),
+                        ),
+                        
                         // Admin Posting Button (if admin)
                         if (appUser.role == 'admin') ...[
                           const SizedBox(height: 12),
