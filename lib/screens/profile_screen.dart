@@ -75,6 +75,7 @@ class ProfileScreen extends StatelessWidget {
               'username': user.displayName ?? 'Pengguna',
               'phone': '',
               'role': 'user',
+              'profileImageUrl': '',
             }, SetOptions(merge: true));
             return Center(
               child: Column(
@@ -195,12 +196,20 @@ class ProfileScreen extends StatelessWidget {
                               offset: const Offset(0, 5),
                             ),
                           ],
+                          image: appUser.profileImageUrl.isNotEmpty
+                              ? DecorationImage(
+                                  image: NetworkImage(appUser.profileImageUrl),
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
                         ),
-                        child: Icon(
-                          Icons.person,
-                          size: 60,
-                          color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
-                        ),
+                        child: appUser.profileImageUrl.isEmpty
+                            ? Icon(
+                                Icons.person,
+                                size: 60,
+                                color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                              )
+                            : null,
                       ),
                       Container(
                         padding: const EdgeInsets.all(4),
@@ -309,7 +318,7 @@ class ProfileScreen extends StatelessWidget {
                             onPressed: () => Navigator.pushNamed(
                               context,
                               '/edit-profile',
-                              arguments: appUser,
+                              arguments: appUser, // Tambahkan argumen di sini
                             ),
                             icon: const Icon(Icons.edit),
                             label: const Text('Edit Profil'),

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'signup_screen.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -23,47 +21,34 @@ class _LandingScreenState extends State<LandingScreen> {
         isLoading = true;
         errorMessage = null;
       });
-      
-      print('Mulai proses login dengan Google...');
+
       final GoogleSignIn googleSignIn = GoogleSignIn(
-        clientId: '462204121529-hdqoh31a9a0u1hsdhvg3cfp5i874ekt3.apps.googleusercontent.com', 
+        clientId: '462204121529-hdqoh31a9a0u1hsdhvg3cfp5i874ekt3.apps.googleusercontent.com', // Ganti dengan Web Client ID dari Firebase
       );
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
       if (googleUser == null) {
-        print('Pengguna membatalkan login Google.');
         setState(() {
           isLoading = false;
+          errorMessage = 'Login dengan Google dibatalkan oleh pengguna';
         });
         return;
       }
 
-      print('Google Sign-In berhasil, mengambil kredensial...');
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      print('Mengautentikasi dengan Firebase...');
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+      final UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithCredential(credential);
       if (userCredential.user != null) {
-        print('Autentikasi berhasil, menyimpan data pengguna ke Firestore...');
-        await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
-          'email': userCredential.user!.email,
-          'username': userCredential.user!.displayName,
-          'phone': '',
-        }, SetOptions(merge: true));
-        print('Navigasi ke halaman utama...');
         Navigator.pushReplacementNamed(context, '/main');
       }
     } catch (e) {
-      print('Error saat login dengan Google: $e');
-      setState(() {
-        errorMessage = 'Gagal Login Google: ${_getReadableErrorMessage(e)}';
-      });
-    } finally {
       setState(() {
         isLoading = false;
+        errorMessage = 'Gagal Login Google: ${_getReadableErrorMessage(e)}';
       });
     }
   }
@@ -75,37 +60,25 @@ class _LandingScreenState extends State<LandingScreen> {
       });
       return;
     }
-    
+
     try {
       setState(() {
         isLoading = true;
         errorMessage = null;
       });
-      
-      print('Mulai proses login dengan email...');
-      print('Email: $email');
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
+
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email.trim(),
         password: password,
       );
       if (userCredential.user != null) {
-        print('Autentikasi berhasil, menyimpan data pengguna ke Firestore...');
-        await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
-          'email': email,
-          'username': userCredential.user!.displayName ?? 'Pengguna',
-          'phone': '',
-        }, SetOptions(merge: true));
-        print('Navigasi ke halaman utama...');
         Navigator.pushReplacementNamed(context, '/main');
       }
     } catch (e) {
-      print('Error saat login dengan email: $e');
-      setState(() {
-        errorMessage = _getReadableErrorMessage(e);
-      });
-    } finally {
       setState(() {
         isLoading = false;
+        errorMessage = _getReadableErrorMessage(e);
       });
     }
   }
@@ -124,7 +97,7 @@ class _LandingScreenState extends State<LandingScreen> {
         case 'too-many-requests':
           return 'Terlalu banyak percobaan login, coba lagi nanti';
         default:
-          return 'Gagal login: ${error.message}';
+          return 'Gagal login: ${error.message ?? "Kesalahan tidak diketahui"}';
       }
     }
     return error.toString();
@@ -158,15 +131,6 @@ class _LandingScreenState extends State<LandingScreen> {
                   ),
                 ),
                 const SizedBox(height: 40),
-                const Text(
-                  'Create an account',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
                 const Text(
                   'Enter your email to sign up for this app',
                   style: TextStyle(
@@ -307,7 +271,7 @@ class _LandingScreenState extends State<LandingScreen> {
                     width: 20,
                     height: 20,
                     child: Image.asset(
-                      'assets/google_logo.png',
+                      'assets/google_logo.png', // Pastikan aset ini ada di pubspec.yaml
                       fit: BoxFit.contain,
                     ),
                   ),

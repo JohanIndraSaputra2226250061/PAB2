@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
+import 'package:rupa_nusa/models/user.dart';
 import 'package:rupa_nusa/screens/category_screen.dart';
 import 'package:rupa_nusa/screens/detail_screen.dart';
 import 'package:rupa_nusa/screens/favorite_screen.dart';
@@ -19,7 +20,6 @@ import 'screens/profile_screen.dart';
 import 'providers/theme_provider.dart';
 
 void main() async {
-  // Menghapus hash (#) dari URL
   setPathUrlStrategy();
   
   WidgetsFlutterBinding.ensureInitialized();
@@ -65,7 +65,17 @@ class RupaNusaApp extends StatelessWidget {
             '/detail': (context) => const DetailScreen(),
             '/settings': (context) => const SettingsScreen(),
             '/home': (context) => const HomeScreen(),
-            '/edit-profile': (context) => const EditProfileScreen(),
+            '/edit-profile': (context) {
+              final args = ModalRoute.of(context)!.settings.arguments as AppUser?;
+              if (args == null) {
+                return Scaffold(
+                  body: Center(
+                    child: Text('Pengguna tidak ditemukan'),
+                  ),
+                );
+              }
+              return EditProfileScreen(appUser: args);
+            },
             '/admin-posting': (context) => const AdminPostingScreen(),
             '/change-password': (context) => const ChangePasswordScreen(),
           },
