@@ -25,29 +25,13 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                color: Colors.orange,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.import_contacts,
-                size: 50,
-                color: Colors.white,
-              ),
+            Image.asset(
+              'assets/logo.png', 
+              width: 300,
+              height: 300,
+              fit: BoxFit.contain,
             ),
             const SizedBox(height: 20),
-            const Text(
-              'RupaNusa',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-            const SizedBox(height: 10),
             const CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
             ),

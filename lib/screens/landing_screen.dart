@@ -26,7 +26,7 @@ class _LandingScreenState extends State<LandingScreen> {
       
       print('Mulai proses login dengan Google...');
       final GoogleSignIn googleSignIn = GoogleSignIn(
-        clientId: 'YOUR_WEB_CLIENT_ID_HERE', // Ganti dengan Web Client ID dari Firebase
+        clientId: '462204121529-hdqoh31a9a0u1hsdhvg3cfp5i874ekt3.apps.googleusercontent.com', 
       );
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
       if (googleUser == null) {
