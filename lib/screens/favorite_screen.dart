@@ -64,26 +64,29 @@ class FavoritesScreen extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Favorit Saya',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: isDarkMode ? Colors.white : Colors.black,
+                  Expanded(  // Tambahkan Expanded di sini
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Favorit Saya',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: isDarkMode ? Colors.white : Colors.black,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Koleksi budaya yang Anda sukai',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                        const SizedBox(height: 4),
+                        Text(
+                          'Koleksi budaya yang Anda sukai',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                          ),
+                          overflow: TextOverflow.ellipsis,  // Tambahkan ini
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   Container(
                     decoration: BoxDecoration(
@@ -121,7 +124,7 @@ class FavoritesScreen extends StatelessWidget {
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(
+                    return const Center(
                       child: CircularProgressIndicator(
                         color: Colors.orange,
                         strokeWidth: 3,
@@ -220,7 +223,7 @@ class FavoritesScreen extends StatelessWidget {
                         .snapshots(),
                     builder: (context, cultureSnapshot) {
                       if (cultureSnapshot.connectionState == ConnectionState.waiting) {
-                        return Center(
+                        return const Center(
                           child: CircularProgressIndicator(
                             color: Colors.orange,
                             strokeWidth: 3,
@@ -252,13 +255,14 @@ class FavoritesScreen extends StatelessWidget {
 
                       final cultures = cultureSnapshot.data!.docs.map((doc) => Culture.fromFirestore(doc)).toList();
 
+                      // Perbaiki GridView untuk menghindari overflow
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: GridView.builder(
                           padding: const EdgeInsets.only(top: 16.0, bottom: 24.0),
                           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
-                            childAspectRatio: 0.75,
+                            childAspectRatio: 0.68, // Ubah rasio untuk memberikan lebih banyak ruang vertikal
                             crossAxisSpacing: 16,
                             mainAxisSpacing: 16,
                           ),
@@ -287,96 +291,104 @@ class FavoritesScreen extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     // Image with like button overlay
-                                    Stack(
-                                      children: [
-                                        ClipRRect(
-                                          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                                          child: Image.network(
-                                            culture.imageUrl,
-                                            height: 140,
-                                            width: double.infinity,
-                                            fit: BoxFit.cover,
-                                            errorBuilder: (context, error, stackTrace) => Container(
-                                              height: 140,
-                                              color: Colors.grey.shade300,
-                                              child: const Icon(Icons.broken_image, size: 50, color: Colors.grey),
+                                    SizedBox(  // Tambahkan SizedBox dengan tinggi tetap
+                                      height: 120,
+                                      child: Stack(
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                                            child: Image.network(
+                                              culture.imageUrl,
+                                              height: 120,  // Sesuaikan tinggi gambar
+                                              width: double.infinity,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (context, error, stackTrace) => Container(
+                                                height: 120,
+                                                color: Colors.grey.shade300,
+                                                child: const Icon(Icons.broken_image, size: 50, color: Colors.grey),
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                        Positioned(
-                                          top: 8,
-                                          right: 8,
-                                          child: Container(
-                                            padding: const EdgeInsets.all(6),
-                                            decoration: BoxDecoration(
-                                              color: Colors.white.withOpacity(0.8),
-                                              shape: BoxShape.circle,
-                                            ),
-                                            child: const Icon(
-                                              Icons.favorite,
-                                              color: Colors.red,
-                                              size: 18,
+                                          Positioned(
+                                            top: 8,
+                                            right: 8,
+                                            child: Container(
+                                              padding: const EdgeInsets.all(6),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white.withOpacity(0.8),
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: const Icon(
+                                                Icons.favorite,
+                                                color: Colors.red,
+                                                size: 18,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                     
                                     // Content
-                                    Padding(
-                                      padding: const EdgeInsets.all(12.0),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            culture.title,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                              color: isDarkMode ? Colors.white : Colors.black87,
-                                            ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                            decoration: BoxDecoration(
-                                              color: Colors.orange.withOpacity(0.1),
-                                              borderRadius: BorderRadius.circular(4),
-                                            ),
-                                            child: Text(
-                                              culture.category,
-                                              style: const TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.orange,
-                                                fontWeight: FontWeight.w500,
+                                    Expanded(  // Tambahkan Expanded untuk mengisi ruang yang tersisa
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(12.0),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          mainAxisSize: MainAxisSize.min,  // Meminimalkan ukuran vertikal
+                                          children: [
+                                            Text(
+                                              culture.title,
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                color: isDarkMode ? Colors.white : Colors.black87,
                                               ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
                                             ),
-                                          ),
-                                          const SizedBox(height: 8),
-                                          Row(
-                                            children: [
-                                              Icon(
-                                                Icons.location_on,
-                                                size: 14,
-                                                color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                                            const SizedBox(height: 4),
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                              decoration: BoxDecoration(
+                                                color: Colors.orange.withOpacity(0.1),
+                                                borderRadius: BorderRadius.circular(4),
                                               ),
-                                              const SizedBox(width: 4),
-                                              Expanded(
-                                                child: Text(
-                                                  culture.location,
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
-                                                  ),
-                                                  maxLines: 1,
-                                                  overflow: TextOverflow.ellipsis,
+                                              child: Text(
+                                                culture.category,
+                                                style: const TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.orange,
+                                                  fontWeight: FontWeight.w500,
                                                 ),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
                                               ),
-                                            ],
-                                          ),
-                                        ],
+                                            ),
+                                            const Spacer(),  // Buat jarak fleksibel
+                                            Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.location_on,
+                                                  size: 14,
+                                                  color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Expanded(
+                                                  child: Text(
+                                                    culture.location,
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                                                    ),
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ],
