@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rupa_nusa/models/culture.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:geolocator/geolocator.dart'; // Tambahkan import geolocator
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,11 +16,15 @@ class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
   bool _showAppBarTitle = false;
   int _currentCarouselIndex = 0;
+  Position? _currentPosition; // Untuk menyimpan lokasi pengguna
+  String? _locationMessage; // Untuk menampilkan pesan lokasi
+  bool _isLoadingLocation = false; // Untuk indikator loading
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    _getCurrentLocation(); // Panggil fungsi untuk mendapatkan lokasi saat layar dimuat
   }
 
   @override
@@ -41,9 +46,66 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _getCurrentLocation() async {
+    setState(() {
+      _isLoadingLocation = true;
+      _locationMessage = null;
+    });
+
+    try {
+      // Periksa apakah layanan lokasi diaktifkan
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        setState(() {
+          _locationMessage = 'Layanan lokasi dinonaktifkan. Silakan aktifkan.';
+          _isLoadingLocation = false;
+        });
+        return;
+      }
+
+      // Periksa dan minta izin lokasi
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          setState(() {
+            _locationMessage = 'Izin lokasi ditolak.';
+            _isLoadingLocation = false;
+          });
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        setState(() {
+          _locationMessage = 'Izin lokasi ditolak secara permanen. Silakan ubah di pengaturan.';
+          _isLoadingLocation = false;
+        });
+        return;
+      }
+
+      // Dapatkan lokasi saat ini
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      setState(() {
+        _currentPosition = position;
+        _locationMessage =
+            'Lokasi Anda: ${position.latitude.toStringAsFixed(6)}, ${position.longitude.toStringAsFixed(6)}';
+        _isLoadingLocation = false;
+      });
+    } catch (e) {
+      setState(() {
+        _locationMessage = 'Gagal mendapatkan lokasi: $e';
+        _isLoadingLocation = false;
+      });
+    }
+  }
+
   Widget _buildHeader() {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       decoration: BoxDecoration(
@@ -114,6 +176,34 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              const Icon(Icons.location_on, color: Colors.white, size: 16),
+              const SizedBox(width: 8),
+              _isLoadingLocation
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                    )
+                  : Expanded(
+                      child: Text(
+                        _locationMessage ?? 'Mengambil lokasi...',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+              IconButton(
+                icon: const Icon(Icons.refresh, color: Colors.white),
+                onPressed: _getCurrentLocation,
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -121,7 +211,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildCategorySection() {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    
+
     final List<Map<String, dynamic>> categories = [
       {'name': 'Tarian', 'icon': Icons.music_note, 'color': Colors.red[400]},
       {'name': 'Rumah Adat', 'icon': Icons.home, 'color': Colors.brown[400]},
@@ -249,7 +339,7 @@ class _HomeScreenState extends State<HomeScreen> {
     required Color accentColor,
   }) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       child: Column(
@@ -466,7 +556,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildLoadingItems() {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    
+
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       scrollDirection: Axis.horizontal,
@@ -525,7 +615,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildErrorWidget() {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -553,7 +643,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildEmptyWidget(String category) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -579,277 +669,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Widget _buildFeaturedSection() {
-  //   final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    
-  //   return Container(
-  //     margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         Row(
-  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //           children: [
-  //             Text(
-  //               'Budaya Pilihan',
-  //               style: TextStyle(
-  //                 fontSize: 18,
-  //                 fontWeight: FontWeight.bold,
-  //                 color: isDarkMode ? Colors.white : Colors.black,
-  //               ),
-  //             ),
-  //             GestureDetector(
-  //               onTap: () {
-  //                 // Navigasi ke halaman semua budaya pilihan
-  //               },
-  //               child: Container(
-  //                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-  //                 decoration: BoxDecoration(
-  //                   color: Colors.orange.withOpacity(0.1),
-  //                   borderRadius: BorderRadius.circular(20),
-  //                 ),
-  //                 child: const Row(
-  //                   children: [
-  //                     Text(
-  //                       'Lihat Semua',
-  //                       style: TextStyle(
-  //                         fontSize: 12,
-  //                         fontWeight: FontWeight.bold,
-  //                         color: Colors.orange,
-  //                       ),
-  //                     ),
-  //                     SizedBox(width: 4),
-  //                     Icon(
-  //                       Icons.arrow_forward_ios,
-  //                       size: 10,
-  //                       color: Colors.orange,
-  //                     ),
-  //                   ],
-  //                 ),
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //         const SizedBox(height: 16),
-  //         StreamBuilder<QuerySnapshot>(
-  //           stream: FirebaseFirestore.instance
-  //               .collection('cultures')
-  //               .orderBy('likeCount', descending: true)
-  //               .limit(5)
-  //               .snapshots(),
-  //           builder: (context, featuredSnapshot) {  // Updated variable name here
-  //             if (featuredSnapshot.connectionState == ConnectionState.waiting) {
-  //               return _buildFeaturedLoadingItem();
-  //             }
-  //             if (featuredSnapshot.hasError || !featuredSnapshot.hasData || featuredSnapshot.data!.docs.isEmpty) {
-  //               return Container();
-  //             }
-              
-  //             final cultures = featuredSnapshot.data!.docs.map((doc) => Culture.fromFirestore(doc)).toList();
-              
-  //             return CarouselSlider(
-  //               options: CarouselOptions(
-  //                 height: 200,
-  //                 viewportFraction: 1.0,
-  //                 enlargeCenterPage: false,
-  //                 autoPlay: true,
-  //                 autoPlayInterval: const Duration(seconds: 5),
-  //                 autoPlayAnimationDuration: const Duration(milliseconds: 800),
-  //                 autoPlayCurve: Curves.fastOutSlowIn,
-  //                 enableInfiniteScroll: cultures.length > 1,
-  //                 onPageChanged: (index, reason) {
-  //                   setState(() {
-  //                     _currentCarouselIndex = index;
-  //                   });
-  //                 },
-  //               ),
-  //               items: cultures.map((culture) {
-  //                 return Builder(
-  //                   builder: (BuildContext context) {
-  //                     return GestureDetector(
-  //                       onTap: () {
-  //                         Navigator.pushNamed(
-  //                           context,
-  //                           '/detail',
-  //                           arguments: culture,
-  //                         );
-  //                       },
-  //                       child: Container(
-  //                         width: MediaQuery.of(context).size.width,
-  //                         margin: const EdgeInsets.symmetric(horizontal: 0),
-  //                         decoration: BoxDecoration(
-  //                           borderRadius: BorderRadius.circular(16),
-  //                           boxShadow: [
-  //                             BoxShadow(
-  //                               color: Colors.black.withOpacity(0.1),
-  //                               blurRadius: 10,
-  //                               offset: const Offset(0, 5),
-  //                             ),
-  //                           ],
-  //                         ),
-  //                         child: Stack(
-  //                           children: [
-  //                             // Image
-  //                             ClipRRect(
-  //                               borderRadius: BorderRadius.circular(16),
-  //                               child: Image.network(
-  //                                 culture.imageUrl,
-  //                                 width: double.infinity,
-  //                                 height: 200,
-  //                                 fit: BoxFit.cover,
-  //                                 errorBuilder: (context, error, stackTrace) => Container(
-  //                                   width: double.infinity,
-  //                                   height: 200,
-  //                                   color: Colors.grey.shade300,
-  //                                   child: const Icon(
-  //                                     Icons.broken_image,
-  //                                     size: 50,
-  //                                     color: Colors.grey,
-  //                                   ),
-  //                                 ),
-  //                               ),
-  //                             ),
-  //                             // Gradient overlay
-  //                             Container(
-  //                               decoration: BoxDecoration(
-  //                                 borderRadius: BorderRadius.circular(16),
-  //                                 gradient: LinearGradient(
-  //                                   begin: Alignment.topCenter,
-  //                                   end: Alignment.bottomCenter,
-  //                                   colors: [
-  //                                     Colors.transparent,
-  //                                     Colors.black.withOpacity(0.7),
-  //                                   ],
-  //                                   stops: const [0.5, 1.0],
-  //                                 ),
-  //                               ),
-  //                             ),
-  //                             // Content
-  //                             Positioned(
-  //                               bottom: 16,
-  //                               left: 16,
-  //                               right: 16,
-  //                               child: Column(
-  //                                 crossAxisAlignment: CrossAxisAlignment.start,
-  //                                 children: [
-  //                                   Container(
-  //                                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-  //                                     decoration: BoxDecoration(
-  //                                       color: Colors.orange,
-  //                                       borderRadius: BorderRadius.circular(20),
-  //                                     ),
-  //                                     child: Text(
-  //                                       culture.category,
-  //                                       style: const TextStyle(
-  //                                         color: Colors.white,
-  //                                         fontWeight: FontWeight.bold,
-  //                                         fontSize: 12,
-  //                                       ),
-  //                                     ),
-  //                                   ),
-  //                                   const SizedBox(height: 8),
-  //                                   Text(
-  //                                     culture.title,
-  //                                     style: const TextStyle(
-  //                                       fontSize: 18,
-  //                                       fontWeight: FontWeight.bold,
-  //                                       color: Colors.white,
-  //                                     ),
-  //                                   ),
-  //                                   const SizedBox(height: 4),
-  //                                   Row(
-  //                                     children: [
-  //                                       const Icon(
-  //                                         Icons.location_on,
-  //                                         size: 14,
-  //                                         color: Colors.white70,
-  //                                       ),
-  //                                       const SizedBox(width: 4),
-  //                                       Expanded(
-  //                                         child: Text(
-  //                                           culture.location,
-  //                                           style: const TextStyle(
-  //                                             fontSize: 12,
-  //                                             color: Colors.white70,
-  //                                           ),
-  //                                           maxLines: 1,
-  //                                           overflow: TextOverflow.ellipsis,
-  //                                         ),
-  //                                       ),
-  //                                       const SizedBox(width: 8),
-  //                                       const Icon(
-  //                                         Icons.favorite,
-  //                                         size: 14,
-  //                                         color: Colors.red,
-  //                                       ),
-  //                                       const SizedBox(width: 4),
-  //                                       Text(
-  //                                         '${culture.likeCount}',
-  //                                         style: const TextStyle(
-  //                                           fontSize: 12,
-  //                                           color: Colors.white,
-  //                                           fontWeight: FontWeight.bold,
-  //                                         ),
-  //                                       ),
-  //                                     ],
-  //                                   ),
-  //                                 ],
-  //                               ),
-  //                             ),
-  //                           ],
-  //                         ),
-  //                       ),
-  //                     );
-  //                   },
-  //                 );
-  //               }).toList(),
-  //             );
-  //           },
-  //         ),
-  //         // Indicator dots
-  //         StreamBuilder<QuerySnapshot>(
-  //           stream: FirebaseFirestore.instance
-  //             .collection('cultures')
-  //             .orderBy('likeCount', descending: true)
-  //             .limit(5)
-  //             .snapshots(),
-  //           builder: (context, indicatorSnapshot) {  // Updated variable name here
-  //             if (indicatorSnapshot.connectionState != ConnectionState.waiting && 
-  //                 indicatorSnapshot.hasData && 
-  //                 indicatorSnapshot.data!.docs.isNotEmpty) {
-  //               return Padding(
-  //                 padding: const EdgeInsets.only(top: 8.0),
-  //                 child: Row(
-  //                   mainAxisAlignment: MainAxisAlignment.center,
-  //                   children: List.generate(
-  //                     indicatorSnapshot.data!.docs.length > 5 ? 5 : indicatorSnapshot.data!.docs.length,
-  //                     (index) => Container(
-  //                       width: 8,
-  //                       height: 8,
-  //                       margin: const EdgeInsets.symmetric(horizontal: 2),
-  //                       decoration: BoxDecoration(
-  //                         shape: BoxShape.circle,
-  //                         color: _currentCarouselIndex == index
-  //                             ? Colors.orange
-  //                             : (isDarkMode ? Colors.grey[600] : Colors.grey[300]),
-  //                       ),
-  //                     ),
-  //                   ),
-  //                 ),
-  //               );
-  //             } else {
-  //               return Container();  // Return empty container if conditions are not met
-  //             }
-  //           },
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
   Widget _buildFeaturedLoadingItem() {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Shimmer.fromColors(
       baseColor: isDarkMode ? Colors.grey[700]! : Colors.grey[300]!,
       highlightColor: isDarkMode ? Colors.grey[600]! : Colors.grey[100]!,
@@ -867,7 +689,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Scaffold(
       backgroundColor: isDarkMode ? Colors.grey[900] : Colors.grey[50],
       body: NestedScrollView(
@@ -894,7 +716,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   icon: const Icon(Icons.notifications_outlined, color: Colors.white),
                   onPressed: () {
                     // Implementasi notifikasi
-                    
                   },
                 ),
               ],
@@ -912,7 +733,6 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildHeader(),
-                // _buildFeaturedSection(),
                 _buildCategorySection(),
                 _buildCultureSection(
                   title: 'Rumah Adat Populer',
