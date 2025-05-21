@@ -55,6 +55,8 @@ class CategoryScreen extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                             color: isDarkMode ? Colors.white : Colors.black,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         Text(
                           'Jelajahi koleksi budaya Indonesia',
@@ -62,6 +64,8 @@ class CategoryScreen extends StatelessWidget {
                             fontSize: 14,
                             color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
@@ -85,7 +89,7 @@ class CategoryScreen extends StatelessWidget {
                         color: isDarkMode ? Colors.white : Colors.black,
                       ),
                       onPressed: () {
-                        
+                        // Filter implementation
                       },
                     ),
                   ),
@@ -103,7 +107,7 @@ class CategoryScreen extends StatelessWidget {
                         .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(
+                    return const Center(
                       child: CircularProgressIndicator(
                         color: Colors.orange,
                         strokeWidth: 3,
@@ -219,7 +223,7 @@ class CategoryScreen extends StatelessWidget {
                             padding: const EdgeInsets.only(bottom: 24.0),
                             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 2,
-                              childAspectRatio: 0.75,
+                              childAspectRatio: 0.68, // Diubah dari 0.75 menjadi 0.68 untuk menambah ruang vertikal
                               crossAxisSpacing: 16,
                               mainAxisSpacing: 16,
                             ),
@@ -250,111 +254,120 @@ class CategoryScreen extends StatelessWidget {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       // Image
-                                      Stack(
-                                        children: [
-                                          ClipRRect(
-                                            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                                            child: Image.network(
-                                              culture.imageUrl,
-                                              height: 140,
-                                              width: double.infinity,
-                                              fit: BoxFit.cover,
-                                              errorBuilder: (context, error, stackTrace) => Container(
-                                                height: 140,
-                                                color: Colors.grey.shade300,
-                                                child: const Icon(Icons.broken_image, size: 50, color: Colors.grey),
+                                      SizedBox(
+                                        height: 120, // Mengurangi tinggi gambar dari 140 ke 120
+                                        child: Stack(
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                                              child: Image.network(
+                                                culture.imageUrl,
+                                                height: 120,
+                                                width: double.infinity,
+                                                fit: BoxFit.cover,
+                                                errorBuilder: (context, error, stackTrace) => Container(
+                                                  height: 120,
+                                                  color: Colors.grey.shade300,
+                                                  child: const Icon(Icons.broken_image, size: 50, color: Colors.grey),
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                          // Like indicator (optional)
-                                          if (culture.likeCount > 0)
-                                            Positioned(
-                                              top: 8,
-                                              right: 8,
-                                              child: Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.black.withOpacity(0.6),
-                                                  borderRadius: BorderRadius.circular(12),
-                                                ),
-                                                child: Row(
-                                                  children: [
-                                                    const Icon(
-                                                      Icons.favorite,
-                                                      color: Colors.red,
-                                                      size: 14,
-                                                    ),
-                                                    const SizedBox(width: 4),
-                                                    Text(
-                                                      '${culture.likeCount}',
-                                                      style: const TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 12,
-                                                        fontWeight: FontWeight.bold,
+                                            // Like indicator (optional)
+                                            if (culture.likeCount > 0)
+                                              Positioned(
+                                                top: 8,
+                                                right: 8,
+                                                child: Container(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.black.withOpacity(0.6),
+                                                    borderRadius: BorderRadius.circular(12),
+                                                  ),
+                                                  child: Row(
+                                                    mainAxisSize: MainAxisSize.min, // Tambahkan ini
+                                                    children: [
+                                                      const Icon(
+                                                        Icons.favorite,
+                                                        color: Colors.red,
+                                                        size: 14,
                                                       ),
-                                                    ),
-                                                  ],
+                                                      const SizedBox(width: 4),
+                                                      Text(
+                                                        '${culture.likeCount}',
+                                                        style: const TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 12,
+                                                          fontWeight: FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
                                       
                                       // Content
-                                      Padding(
-                                        padding: const EdgeInsets.all(12.0),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              culture.title,
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                                color: isDarkMode ? Colors.white : Colors.black87,
-                                              ),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Container(
-                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                              decoration: BoxDecoration(
-                                                color: Colors.orange.withOpacity(0.1),
-                                                borderRadius: BorderRadius.circular(4),
-                                              ),
-                                              child: Text(
-                                                culture.category,
-                                                style: const TextStyle(
-                                                  fontSize: 12,
-                                                  color: Colors.orange,
-                                                  fontWeight: FontWeight.w500,
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(12.0),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                culture.title,
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: isDarkMode ? Colors.white : Colors.black87,
                                                 ),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
                                               ),
-                                            ),
-                                            const SizedBox(height: 8),
-                                            Row(
-                                              children: [
-                                                Icon(
-                                                  Icons.location_on,
-                                                  size: 14,
-                                                  color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                                              const SizedBox(height: 4),
+                                              Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.orange.withOpacity(0.1),
+                                                  borderRadius: BorderRadius.circular(4),
                                                 ),
-                                                const SizedBox(width: 4),
-                                                Expanded(
-                                                  child: Text(
-                                                    culture.location,
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
-                                                    ),
-                                                    maxLines: 1,
-                                                    overflow: TextOverflow.ellipsis,
+                                                child: Text(
+                                                  culture.category,
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.orange,
+                                                    fontWeight: FontWeight.w500,
                                                   ),
+                                                  maxLines: 1,
+                                                  overflow: TextOverflow.ellipsis,
                                                 ),
-                                              ],
-                                            ),
-                                          ],
+                                              ),
+                                              const Spacer(), 
+                                              Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.location_on,
+                                                    size: 14,
+                                                    color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                                                  ),
+                                                  const SizedBox(width: 4),
+                                                  Expanded(
+                                                    child: Text(
+                                                      culture.location,
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                                                      ),
+                                                      maxLines: 1,
+                                                      overflow: TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ],
