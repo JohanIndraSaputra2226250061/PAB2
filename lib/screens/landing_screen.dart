@@ -271,7 +271,7 @@ class _LandingScreenState extends State<LandingScreen> {
                     width: 20,
                     height: 20,
                     child: Image.asset(
-                      'assets/google_logo.png', // Pastikan aset ini ada di pubspec.yaml
+                      'assets/google.jpg', 
                       fit: BoxFit.contain,
                     ),
                   ),
