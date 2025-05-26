@@ -23,7 +23,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   String? _errorMessage;
   bool _isLoading = false;
   File? _imageFile;
-  Uint8List? _webImageBytes; 
+  Uint8List? _webImageBytes;
   String? _profileImageUrl;
 
   @override
@@ -73,22 +73,32 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (user == null) return null;
 
     try {
+      // Make sure the storage reference path is valid
       final storageRef = FirebaseStorage.instance
           .ref()
-          .child('profile_pictures/${user.uid}/${DateTime.now().millisecondsSinceEpoch}.jpg');
+          .child('profile_pictures')
+          .child(user.uid)
+          .child('${DateTime.now().millisecondsSinceEpoch}.jpg');
 
       if (kIsWeb) {
         if (_webImageBytes == null) return null;
-        // Unggah gambar di web menggunakan bytes
-        final uploadTask = await storageRef.putData(_webImageBytes!);
+        // Add content type for web uploads
+        final uploadTask = await storageRef.putData(
+          _webImageBytes!,
+          SettableMetadata(contentType: 'image/jpeg'),
+        );
         return await uploadTask.ref.getDownloadURL();
       } else {
         if (_imageFile == null) return null;
-        // Unggah gambar di mobile menggunakan file
-        final uploadTask = await storageRef.putFile(_imageFile!);
+        // Add content type for mobile uploads
+        final uploadTask = await storageRef.putFile(
+          _imageFile!,
+          SettableMetadata(contentType: 'image/jpeg'),
+        );
         return await uploadTask.ref.getDownloadURL();
       }
     } catch (e) {
+      print('Error uploading image: $e');
       setState(() {
         _errorMessage = 'Gagal mengunggah gambar: $e';
       });
@@ -123,11 +133,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         }
       }
 
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
-        'username': _usernameController.text.trim(),
-        'phone': _phoneController.text.trim(),
-        'profileImageUrl': newImageUrl ?? '',
-      });
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .update({
+            'username': _usernameController.text.trim(),
+            'phone': _phoneController.text.trim(),
+            'profileImageUrl': newImageUrl ?? '',
+          });
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Profil berhasil diperbarui')),
@@ -190,31 +203,38 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           offset: const Offset(0, 5),
                         ),
                       ],
-                      image: kIsWeb && _webImageBytes != null
-                          ? DecorationImage(
-                              image: MemoryImage(_webImageBytes!),
-                              fit: BoxFit.cover,
-                            )
-                          : _imageFile != null
+                      image:
+                          kIsWeb && _webImageBytes != null
                               ? DecorationImage(
-                                  image: FileImage(_imageFile!),
-                                  fit: BoxFit.cover,
-                                )
-                              : _profileImageUrl != null && _profileImageUrl!.isNotEmpty
-                                  ? DecorationImage(
-                                      image: NetworkImage(_profileImageUrl!),
-                                      fit: BoxFit.cover,
-                                    )
-                                  : null,
+                                image: MemoryImage(_webImageBytes!),
+                                fit: BoxFit.cover,
+                              )
+                              : _imageFile != null
+                              ? DecorationImage(
+                                image: FileImage(_imageFile!),
+                                fit: BoxFit.cover,
+                              )
+                              : _profileImageUrl != null &&
+                                  _profileImageUrl!.isNotEmpty
+                              ? DecorationImage(
+                                image: NetworkImage(_profileImageUrl!),
+                                fit: BoxFit.cover,
+                              )
+                              : null,
                     ),
-                    child: (_imageFile == null && _webImageBytes == null) &&
-                            (_profileImageUrl == null || _profileImageUrl!.isEmpty)
-                        ? Icon(
-                            Icons.person,
-                            size: 60,
-                            color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
-                          )
-                        : null,
+                    child:
+                        (_imageFile == null && _webImageBytes == null) &&
+                                (_profileImageUrl == null ||
+                                    _profileImageUrl!.isEmpty)
+                            ? Icon(
+                              Icons.person,
+                              size: 60,
+                              color:
+                                  isDarkMode
+                                      ? Colors.grey[400]
+                                      : Colors.grey[600],
+                            )
+                            : null,
                   ),
                   GestureDetector(
                     onTap: _pickImage,
@@ -243,7 +263,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               controller: _usernameController,
               decoration: InputDecoration(
                 labelText: 'Username',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 filled: true,
                 fillColor: isDarkMode ? Colors.grey[800] : Colors.grey[100],
               ),
@@ -254,7 +276,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               controller: _phoneController,
               decoration: InputDecoration(
                 labelText: 'Nomor Telepon',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 filled: true,
                 fillColor: isDarkMode ? Colors.grey[800] : Colors.grey[100],
               ),
@@ -262,10 +286,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
             if (_errorMessage != null) ...[
               const SizedBox(height: 20),
-              Text(
-                _errorMessage!,
-                style: const TextStyle(color: Colors.red),
-              ),
+              Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
             ],
             const SizedBox(height: 20),
             ElevatedButton(
@@ -279,12 +300,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
                 elevation: 0,
               ),
-              child: _isLoading
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text(
-                      'Simpan Perubahan',
-                      style: TextStyle(fontSize: 16),
-                    ),
+              child:
+                  _isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
+                        'Simpan Perubahan',
+                        style: TextStyle(fontSize: 16),
+                      ),
             ),
           ],
         ),

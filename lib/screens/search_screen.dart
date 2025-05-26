@@ -17,9 +17,8 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   void initState() {
     super.initState();
-    // Tambahkan listener untuk memperbarui UI saat teks berubah
     _searchController.addListener(() {
-      setState(() {}); // Perbarui UI saat teks berubah
+      setState(() {}); 
     });
   }
 
@@ -41,7 +40,6 @@ class _SearchScreenState extends State<SearchScreen> {
     
     return Scaffold(
       backgroundColor: isDarkMode ? Colors.grey[900] : Colors.white,
-      // Menghapus AppBar dan memindahkan kontennya ke body
       body: SafeArea(
         child: Column(
           children: [
